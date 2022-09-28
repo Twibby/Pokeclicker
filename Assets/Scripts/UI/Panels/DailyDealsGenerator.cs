@@ -35,5 +35,6 @@ public class DailyDealsGenerator : MonoBehaviour
     //    }
     //}
 
+    public virtual void ApplyFilters(List<UndergroundItem> items) { Debug.Log("Function not instantiated"); }
 
 }

@@ -27,9 +27,12 @@ public class UndergroundItem
     }
 
     #region Accessors
+    public int Id { get { return this.id; } }
+
     public string DisplayName { get { return this.itemName; } }
 
     public string ExtendedName { get { return this.itemName + (this.valueType == ValueType.Diamond ? " (" + this.value + ")" : ""); } }
+
     public string ImagePath
     {
         get
@@ -48,9 +51,15 @@ public class UndergroundItem
 
     public Color GetItemColor()
     {
-        switch (this.valueType)
+        return GetTypeColor(this.valueType);
+    }
+    #endregion
+
+    public static Color GetTypeColor(ValueType type)
+    {
+        switch (type)
         {
-            case ValueType.Diamond: 
+            case ValueType.Diamond:
                 return new Color(0, 160f / 255f, 200f / 255f);  // ~blue
             case ValueType.EvolutionItem:
                 return new Color(200f / 255f, 0, 0);            // ~red
@@ -65,8 +74,6 @@ public class UndergroundItem
                 return Color.black;
         }
     }
-    #endregion
-
 
         #region Enums for underground items
     public enum ValueType

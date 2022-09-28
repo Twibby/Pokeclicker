@@ -64,12 +64,17 @@
     <Compile Include="Assets\Scripts\UnderGround\UndergroundItem.cs" />
     <Compile Include="Assets\Scripts\BasicClasses\GlobalConstants.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\RangeDateDealGenerator.cs" />
+    <Compile Include="Assets\Scripts\UI\FilterPanel\TypeBloc.cs" />
     <Compile Include="Assets\Scripts\BasicClasses\PlayerSettings.cs" />
     <Compile Include="Assets\Scripts\BasicClasses\SeededRand.cs" />
+    <Compile Include="Assets\Scripts\UI\FilterPanel\FilterPanel.cs" />
     <Compile Include="Assets\Scripts\BasicClasses\Requirements\Requirement.cs" />
-    <Compile Include="Assets\Scripts\UnderGround\DailyDealsGenerator.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\DailyDealsGenerator.cs" />
+    <Compile Include="Assets\Scripts\UI\FilterPanel\ItemLine.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\ChainDealGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SingleDateDealGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DealLine.cs" />
+    <Compile Include="Assets\Scripts\UnderGround\DealChain.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

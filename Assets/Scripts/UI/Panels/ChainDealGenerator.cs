@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 
-
-public class RangeDateDealGenerator : DailyDealsGenerator
+public class ChainDealGenerator : DailyDealsGenerator
 {
     [Header("Dropdowns")]
     public TMPro.TMP_Dropdown StartYearDropdown, StartMonthDropdown, StartDayDropdown;
@@ -13,18 +13,15 @@ public class RangeDateDealGenerator : DailyDealsGenerator
 
     [Space(2)]
     public Transform DealsParent;
-    public Toggle HideEmptyDaysToggle;
 
     [Header("Filter Panel")]
-    public FilterPanel MyFilterPanel;
+    public FilterPanel PickItemPanel;
 
+    [SerializeField] private UndergroundItem pickedItem;
 
-    private SortedDictionary<DateTime, List<DailyDeal>> allDeals = new SortedDictionary<DateTime, List<DailyDeal>>();
-    private List<UndergroundItem> filtersList = new List<UndergroundItem>();
-
-    public override void Initialize ()
+    public override void Initialize()
     {
-        Debug.Log("Initializing Range Date Panel");
+        Debug.Log("Initializing Deal Chain Panel");
 
         int year = DateTime.Now.Year;
         {
@@ -71,17 +68,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         EndYearDropdown.onValueChanged.AddListener(x => initEndDaysDropdown());
         EndMonthDropdown.onValueChanged.AddListener(x => initEndDaysDropdown());
 
-        foreach (DayBloc day in DealsParent.GetComponentsInChildren<DayBloc>(true)) 
-        {
-            Destroy(day.gameObject); 
-        }
-
-        allDeals = new SortedDictionary<DateTime, List<DailyDeal>>();
-        filtersList = new List<UndergroundItem>();
-
-        MyFilterPanel.gameObject.SetActive(false);
-
-        HideEmptyDaysToggle.isOn = false;
+        pickedItem = null;
     }
 
     void initStartDaysDropdown()
@@ -89,7 +76,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         int tmpVal = StartDayDropdown.value;
 
         StartDayDropdown.ClearOptions();
-        for (int d = 1; d <= DateTime.DaysInMonth(DateTime.Now.Year+StartYearDropdown.value, StartMonthDropdown.value+1); d++)
+        for (int d = 1; d <= DateTime.DaysInMonth(DateTime.Now.Year + StartYearDropdown.value, StartMonthDropdown.value + 1); d++)
         {
             StartDayDropdown.options.Add(new TMPro.TMP_Dropdown.OptionData(d.ToString()));
         }
@@ -110,58 +97,13 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         EndDayDropdown.value = Mathf.Min(tmpVal, EndDayDropdown.options.Count - 1);
     }
 
-    #region UI functions
-    
-    public void OpenFilterPanel()
-    {
-        MyFilterPanel.gameObject.SetActive(true);
-        resetFilterPanel();
-    }
-
-    public void OnMaskEmptyDays(bool isOn)
-    {
-        foreach (DayBloc day in DealsParent.GetComponentsInChildren<DayBloc>(true))
-        {
-            day.MaskEmptyDay(isOn);
-        }
-    }
-    
     public void OnGenerateClick()
     {
-        StartCoroutine(coGenerateClick());
-    }
-
-    #endregion
-
-
-    #region FilterPanel
-    private void resetFilterPanel()
-    {
-        this.MyFilterPanel.Reset(filtersList);
-    }
-
-    public override void ApplyFilters(List<UndergroundItem> items)
-    {
-        if (items.Count == UndergroundItemsManager.Singleton.Items.Count)
-            filtersList = new List<UndergroundItem>();
-        else
-            filtersList = new List<UndergroundItem>(items);
-
-        foreach (DayBloc day in DealsParent.GetComponentsInChildren<DayBloc>(true))
+        if (pickedItem == null)
         {
-            day.ApplyFilters(filtersList, HideEmptyDaysToggle.isOn);
+            Debug.LogError("No Item picked, you must pick an underground item to know its best chains");
+            return;
         }
-    }
-    #endregion
-
-    IEnumerator coGenerateClick()
-    {
-        UIManager.Instance.LoadingActivation(true);
-        yield return new WaitForEndOfFrame();
-
-        allDeals = new SortedDictionary<DateTime, List<DailyDeal>>();
-
-        foreach (DayBloc day in DealsParent.GetComponentsInChildren<DayBloc>(true)) { Destroy(day.gameObject); }
 
 
         DateTime startDate = new DateTime(DateTime.Now.Year + StartYearDropdown.value, StartMonthDropdown.value + 1, StartDayDropdown.value + 1);
@@ -170,35 +112,53 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         if (endDate < startDate)
         {
             Debug.LogError("End date is anterior to startDat, no generation");
-
-            yield return new WaitForEndOfFrame();
-
-            UIManager.Instance.LoadingActivation(false);
-
-            yield break; // TODO error popup
+            return;
         }
 
-        Debug.Log("Generating range from " + startDate.ToShortDateString() + " to " + endDate.ToShortDateString());
+        StartCoroutine(coGenerateClick(startDate, endDate));
+    }
 
-       
+    IEnumerator coGenerateClick(DateTime startDate, DateTime endDate)
+    {
+        UIManager.Instance.LoadingActivation(true);
+        
+        yield return new WaitForEndOfFrame();
+
+        Debug.Log("Generating chain from " + startDate.ToShortDateString() + " to " + endDate.ToShortDateString());
+
+        SortedDictionary<DateTime, List<DailyDeal>> allDeals = new SortedDictionary<DateTime, List<DailyDeal>>();
+        List<KeyValuePair<DateTime, DailyDeal>> dealsAsList = new List<KeyValuePair<DateTime, DailyDeal>>();
+
         int safetyCount = 0;
         for (DateTime day = startDate; day < endDate; day = day.AddDays(1))
         {
             List<DailyDeal> dailyDeals = DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, day);
-            
+
+            dailyDeals.Sort(delegate (DailyDeal a, DailyDeal b)
+            {
+                if (a.item1 == b.item2) { return 1; }
+                if (b.item1 == a.item2) { return -1; }
+
+                // if `a` can be linked from something sort `a` after `b`
+                if (dailyDeals.Exists(x => a.item1 == x.item2)) { return 1; }
+                // if `b` can be linked from something, sort `a` before `b`
+                if (dailyDeals.Exists(x => b.item1 == x.item2)) { return -1; }
+
+                return 0;
+            });
+
+            dealsAsList.AddRange(dailyDeals.Select(x => new KeyValuePair<DateTime, DailyDeal>(day, x)));
+
             allDeals.Add(day, dailyDeals);
-
-            GameObject dayBloc = GameObject.Instantiate(DayBlocPrefab, DealsParent);
-            dayBloc.name = "Deals_Of_" + day.ToString("yyyy-MM-dd");
-            dayBloc.GetComponent<DayBloc>().Init(day, dailyDeals, filtersList, HideEmptyDaysToggle.isOn);
-
+                        
             safetyCount++;
-            if (safetyCount > 1)   // arbitrary value to avoid all instantiations in same frame
+            if (safetyCount > 30)   // arbitrary value to avoid all instantiations in same frame
             {
                 safetyCount = 0;
                 yield return new WaitForEndOfFrame();
             }
         }
+        
 
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
@@ -206,5 +166,4 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         UIManager.Instance.LoadingActivation(false);
 
     }
-
 }

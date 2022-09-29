@@ -8,6 +8,7 @@ public class TypeBloc : MonoBehaviour
 {
     public Toggle TypeToggle;
     public TMPro.TMP_Text TypeLabel;
+    public Image TypeColorHolder;
 
     public GameObject ItemLinePrefab;
     public Transform ItemsParent;
@@ -19,7 +20,7 @@ public class TypeBloc : MonoBehaviour
     public void Init(UndergroundItem.ValueType type)
     {
         this.TypeLabel.text = type.ToString();
-        this.TypeLabel.color = UndergroundItem.GetTypeColor(type);
+        this.TypeColorHolder.color = UndergroundItem.GetTypeColor(type);
 
         List<UndergroundItem> myItems = new List<UndergroundItem>(UndergroundItemsManager.Singleton.Items.FindAll(x => x.valueType == type));
 

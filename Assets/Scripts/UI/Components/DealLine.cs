@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class DealLine : MonoBehaviour
 {
+    public Image backgroundImage;
     public TMPro.TMP_Text Amount1Label, Item1Label;
     public TMPro.TMP_Text Amount2Label, Item2Label;
     
@@ -24,7 +25,7 @@ public class DealLine : MonoBehaviour
             this.Item1Label.color = deal.item1.GetItemColor();
         }
 
-        if (zebra)
-            this.GetComponent<Image>().color = zebraColor;
+        if (zebra && backgroundImage)
+            backgroundImage.color = zebraColor;
     }
 }

@@ -5,22 +5,26 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private Toggle SingleDateToggle;     // for init purpose only
-    [SerializeField] private GameObject LoaderPanel;
+    [SerializeField] private UI_MenuTab MainPanelMenuTab;
+    [SerializeField] private LoadingScreenManager LoaderPanel;
 
     // Start is called before the first frame update
     void Start()
     {
-        SingleDateToggle.isOn = false;
-        SingleDateToggle.isOn = true;
+        MainPanelMenuTab.Initialize();
 
-        LoaderPanel.SetActive(false);
-        LoaderPanel.transform.SetAsLastSibling();
+        LoadingActivation(false);
     }
 
-    public void LoadingActivation(bool isActive)
+    public void LoadingActivation(bool value)
     {
-        LoaderPanel.SetActive(isActive);
+        if (value)
+        {
+            LoaderPanel.gameObject.SetActive(true);
+            LoaderPanel.StartLoading();
+        }
+        else
+            LoaderPanel.StopLoading();
     }
 
 

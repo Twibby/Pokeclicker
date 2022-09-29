@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GlobalConstants : MonoBehaviour
 {
-    public static Color WhiteZebra = new Color(240f / 255f, 240f / 255f, 240f / 255f);
+    public static Color WhiteZebra = new Color(245f / 255f, 245f / 255f, 245f / 255f);
 }
 
 public enum Region

@@ -32,7 +32,7 @@ public class SingleDateDealGenerator : DailyDealsGenerator
         
         initDaysDropdown();
         DayDropdown.value = DateTime.Now.Day - 1;
-
+        
         YearDropdown.onValueChanged.AddListener(x => initDaysDropdown());
         MonthDropdown.onValueChanged.AddListener(x => initDaysDropdown());
 

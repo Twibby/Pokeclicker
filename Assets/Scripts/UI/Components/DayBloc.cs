@@ -14,7 +14,7 @@ public class DayBloc : MonoBehaviour
     public GameObject NoDealPanel;
 
     private List<DailyDeal> dayDeals;
-
+    
     public void Init(DateTime date, List<DailyDeal> deals, List<UndergroundItem> filtersList = null, bool hideEmptyDays = false)
     {
         DateLabel.text = date.ToShortDateString();
@@ -24,7 +24,6 @@ public class DayBloc : MonoBehaviour
         displayLines(filtersList);
 
         MaskEmptyDay(hideEmptyDays);
-
     }
     
     public void ApplyFilters(List<UndergroundItem> filtersList, bool hideEmptyDays = false)
@@ -34,6 +33,11 @@ public class DayBloc : MonoBehaviour
         MaskEmptyDay(hideEmptyDays);
     }
 
+    public void ShowDeals(bool value)
+    {
+        DealLinesParent.gameObject.SetActive(value);
+    }
+
     public void MaskEmptyDay(bool isActive)
     {
         if (isActive && NoDealPanel.activeInHierarchy)
@@ -41,7 +45,6 @@ public class DayBloc : MonoBehaviour
         else
             this.gameObject.SetActive(true);
     }
-
 
     private void displayLines(List<UndergroundItem> filtersList)
     {

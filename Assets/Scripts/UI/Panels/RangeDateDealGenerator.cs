@@ -115,7 +115,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
     public void OpenFilterPanel()
     {
         MyFilterPanel.gameObject.SetActive(true);
-        resetFilterPanel();
+        setFilterPanel();
     }
 
     public void OnMaskEmptyDays(bool isOn)
@@ -135,9 +135,9 @@ public class RangeDateDealGenerator : DailyDealsGenerator
 
 
     #region FilterPanel
-    private void resetFilterPanel()
+    private void setFilterPanel()
     {
-        this.MyFilterPanel.Reset(filtersList);
+        this.MyFilterPanel.Set(filtersList);
     }
 
     public override void ApplyFilters(List<UndergroundItem> items)

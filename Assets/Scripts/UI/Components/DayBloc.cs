@@ -21,16 +21,12 @@ public class DayBloc : MonoBehaviour
 
         dayDeals = new List<DailyDeal>(deals);
 
-        displayLines(filtersList);
-
-        MaskEmptyDay(hideEmptyDays);
+        displayLines(filtersList, hideEmptyDays);
     }
     
     public void ApplyFilters(List<UndergroundItem> filtersList, bool hideEmptyDays = false)
     {
-        displayLines(filtersList);
-
-        MaskEmptyDay(hideEmptyDays);
+        displayLines(filtersList, hideEmptyDays);
     }
 
     public void ShowDeals(bool value)
@@ -46,7 +42,7 @@ public class DayBloc : MonoBehaviour
             this.gameObject.SetActive(true);
     }
 
-    private void displayLines(List<UndergroundItem> filtersList)
+    private void displayLines(List<UndergroundItem> filtersList, bool maskEmpty = false)
     {
         foreach (DealLine line in DealLinesParent.GetComponentsInChildren<DealLine>(true))
         {
@@ -78,5 +74,9 @@ public class DayBloc : MonoBehaviour
 
             zebra = !zebra;
         }
+
+        this.gameObject.SetActive(true);
+        if (maskEmpty && displayedDeals.Count == 0)
+            this.gameObject.SetActive(false);
     }
 }

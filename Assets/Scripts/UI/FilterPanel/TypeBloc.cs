@@ -68,6 +68,13 @@ public class TypeBloc : MonoBehaviour
         return _lines.Where(x => x.isOn).Select(x => x.Item).ToList();
     }
 
+    public void OnReset()
+    {
+        this.TypeToggle.isOn = false;
+        this.TypeToggle.isOn = true;
+        _lines.ForEach(x => x.isOn = true);
+    }
+
     public void OnSelectAll()   { _lines.ForEach(x => x.isOn = true);  }
     public void OnSelectNone()  { _lines.ForEach(x => x.isOn = false); }
 

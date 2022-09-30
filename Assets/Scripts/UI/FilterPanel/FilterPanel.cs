@@ -30,7 +30,7 @@ public class FilterPanel : MonoBehaviour
         }
     }
 
-    public void Reset(List<UndergroundItem> filtersList)
+    public void Set(List<UndergroundItem> filtersList)
     {
         foreach (TypeBloc bloc in _blocs)
         {
@@ -52,6 +52,11 @@ public class FilterPanel : MonoBehaviour
         this._parent.ApplyFilters(filters);
 
         this.gameObject.SetActive(false);
+    }
+
+    public void OnReset()
+    {
+        _blocs.ForEach(x => x.OnReset());
     }
     #endregion
 }

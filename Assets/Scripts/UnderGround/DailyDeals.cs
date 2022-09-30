@@ -9,6 +9,8 @@ public class DailyDeal
     public UndergroundItem item2;
     public int amount1;
     public int amount2;
+    
+    public DateTime date;
 
     public DailyDeal()
     {
@@ -16,6 +18,11 @@ public class DailyDeal
         this.amount1 = getRandomAmount();
         this.item2 = getRandomItem();
         this.amount2 = getRandomAmount();
+    }
+
+    public DailyDeal(DateTime p_date) : base()
+    {
+        this.date = p_date;
     }
 
     private static UndergroundItem getRandomItem()
@@ -29,17 +36,18 @@ public class DailyDeal
     }
 
     #region DailyDeal generation
-    public static List<DailyDeal> GenerateDeals(int maxDeals, DateTime date)
+    public static List<DailyDeal> GenerateDeals(int p_maxDeals, DateTime p_date)
     {
-        SeededRand.seedWithDate(date);
+        SeededRand.seedWithDate(p_date);
 
         List<DailyDeal> deals = new List<DailyDeal>();
 
-        int maxTries = maxDeals * 10;
+        int maxTries = p_maxDeals * 10;
         int safetyCount = 0;
-        while (safetyCount < maxTries && deals.Count < maxDeals)
+        while (safetyCount < maxTries && deals.Count < p_maxDeals)
         {
             DailyDeal deal = new DailyDeal();
+            deal.date = p_date;
             if (deal.IsValid(deals))
             {
                 deals.Add(deal);

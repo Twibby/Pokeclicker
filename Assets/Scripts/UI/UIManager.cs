@@ -7,10 +7,15 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private UI_MenuTab MainPanelMenuTab;
     [SerializeField] private LoadingScreenManager LoaderPanel;
+    [SerializeField] private LoadingScreenManager MessagePanel;
+    [SerializeField] private TMPro.TMP_Text MessageLabel;
 
     // Start is called before the first frame update
     void Start()
     {
+        MessageLabel.text = "";
+        MessagePanel.gameObject.SetActive(false);
+
         MainPanelMenuTab.Initialize();
 
         LoadingActivation(false);
@@ -25,6 +30,53 @@ public class UIManager : MonoBehaviour
         }
         else
             LoaderPanel.StopLoading();
+    }
+
+    public enum MessageLevel { NOTICE, WARNING, ERROR, VALIDATE }
+
+    public void SetMessage(string text, MessageLevel level = MessageLevel.ERROR)
+    {
+        //StopCoroutine("coSetMessage");
+        StartCoroutine(coSetMessage(text, level));
+
+    }
+
+    IEnumerator coSetMessage(string text, MessageLevel level)
+    {
+        yield return new WaitForEndOfFrame();
+
+        MessagePanel.gameObject.SetActive(true);
+
+        //MessagePanel.StopLoading();
+        yield return new WaitForSeconds(MessagePanel.Duration);
+
+        string message = "";
+        if (level == MessageLevel.WARNING || level == MessageLevel.ERROR) 
+        { 
+            message += level + ": "; 
+        }
+        message += text;
+
+        MessageLabel.text = message;
+
+        switch (level)
+        {
+            case MessageLevel.NOTICE: MessageLabel.color = Color.black; 
+                Debug.Log(text);  break;
+            case MessageLevel.WARNING: MessageLabel.color = Color.yellow;
+                Debug.LogWarning(text); break;
+            case MessageLevel.ERROR: MessageLabel.color = Color.red;
+                Debug.LogError(text); break;
+            case MessageLevel.VALIDATE: MessageLabel.color = Color.green; 
+                Debug.Log(text); break;
+        }
+
+        MessagePanel.gameObject.SetActive(true); 
+        MessagePanel.StartLoading();
+
+        yield return new WaitForSeconds(2.5f);
+
+        MessagePanel.StopLoading();
     }
 
 

@@ -35,6 +35,7 @@ public class DailyDealsGenerator : MonoBehaviour
     //    }
     //}
 
-    public virtual void ApplyFilters(List<UndergroundItem> items) { Debug.Log("Function not instantiated"); }
+    public virtual void ApplyFilters(List<UndergroundItem> items) { Debug.LogWarning("Function not instantiated"); }
 
+    public virtual void OnPickItem(int itemId) { Debug.LogWarning("Function not implemented : OnPickItem"); }
 }

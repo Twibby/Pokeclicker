@@ -8,10 +8,11 @@ using System;
 public class RangeDateDealGenerator : DailyDealsGenerator
 {
     [Header("Dropdowns")]
-    public TMPro.TMP_Dropdown StartYearDropdown, StartMonthDropdown, StartDayDropdown;
+    public TMPro.TMP_Dropdown StartYearDropdown;
+    public TMPro.TMP_Dropdown StartMonthDropdown, StartDayDropdown;
     public TMPro.TMP_Dropdown EndYearDropdown, EndMonthDropdown, EndDayDropdown;
 
-    [Space(2)]
+    [Space(8)]
     public Transform DealsParent;
     public Toggle HideEmptyDaysToggle;
 
@@ -128,7 +129,16 @@ public class RangeDateDealGenerator : DailyDealsGenerator
     
     public void OnGenerateClick()
     {
-        StartCoroutine(coGenerateClick());
+        DateTime startDate = new DateTime(DateTime.Now.Year + StartYearDropdown.value, StartMonthDropdown.value + 1, StartDayDropdown.value + 1);
+        DateTime endDate = new DateTime(DateTime.Now.Year + EndYearDropdown.value, EndMonthDropdown.value + 1, EndDayDropdown.value + 1, 1, 0, 0);
+
+        if (endDate < startDate)
+        {
+            UIManager.Instance.SetMessage("End date is anterior to startDate, no generation", UIManager.MessageLevel.ERROR);
+            return;
+        }
+
+        StartCoroutine(coGenerateClick(startDate, endDate));
     }
 
     #endregion
@@ -154,7 +164,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
     }
     #endregion
 
-    IEnumerator coGenerateClick()
+    IEnumerator coGenerateClick(DateTime startDate, DateTime endDate)
     {
         UIManager.Instance.LoadingActivation(true);
         yield return new WaitForEndOfFrame();
@@ -162,21 +172,6 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         allDeals = new SortedDictionary<DateTime, List<DailyDeal>>();
 
         foreach (DayBloc day in DealsParent.GetComponentsInChildren<DayBloc>(true)) { Destroy(day.gameObject); }
-
-
-        DateTime startDate = new DateTime(DateTime.Now.Year + StartYearDropdown.value, StartMonthDropdown.value + 1, StartDayDropdown.value + 1);
-        DateTime endDate = new DateTime(DateTime.Now.Year + EndYearDropdown.value, EndMonthDropdown.value + 1, EndDayDropdown.value + 1, 1, 0, 0);
-
-        if (endDate < startDate)
-        {
-            Debug.LogError("End date is anterior to startDat, no generation");
-
-            yield return new WaitForEndOfFrame();
-
-            UIManager.Instance.LoadingActivation(false);
-
-            yield break; // TODO error popup
-        }
 
         Debug.Log("Generating range from " + startDate.ToShortDateString() + " to " + endDate.ToShortDateString());
 

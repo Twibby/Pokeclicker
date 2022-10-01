@@ -72,21 +72,21 @@ public class DealChain
 
         string log = "";
         allDealsAsList.ForEach(x => log += x.ToString() + "  | ");
-        Debug.Log(log);
+        //Debug.Log(log);
 
         // go through deals list and if deal is about required item add it to a chain
         while (allDealsAsList.Count > 0)
         {
             DailyDeal lastDeal = allDealsAsList.Last();
-            Debug.LogWarning("Dealing with  : " + lastDeal.ToString());
+            //Debug.LogWarning("Dealing with  : " + lastDeal.ToString());
 
             List<DealChain> newChains = new List<DealChain>();
             foreach (DealChain chain in dealChains)
             {
-                Debug.Log(" Current chain is " + chain.ToString());
+                //Debug.Log(" Current chain is " + chain.ToString());
                 if (chain.Deals[0].item1.Id == lastDeal.item2.Id)
                 {
-                    Debug.Log("First item match, so duplicate chain and add this deal");
+                    //Debug.Log("First item match, so duplicate chain and add this deal");
                     newChains.Add(new DealChain(chain, lastDeal));
                 }
             }
@@ -94,18 +94,18 @@ public class DealChain
 
             if (lastDeal.item2.Id == item.Id)
             {
-                Debug.Log("SelectedItem is found, create a new chain with it");
+                //Debug.Log("SelectedItem is found, create a new chain with it");
                 DealChain dc = new DealChain();
                 dc.Deals.Add(lastDeal);
                 dealChains.Add(dc);
             }
 
-            Debug.LogWarning("After this deal, we have now these chains : ");
-            Debug.Log(String.Join(System.Environment.NewLine, dealChains));
-            Debug.Log(" ********************* ");
+            //Debug.LogWarning("After this deal, we have now these chains : ");
+            //Debug.Log(String.Join(System.Environment.NewLine, dealChains));
+            //Debug.Log(" ********************* ");
 
             allDealsAsList.RemoveAt(allDealsAsList.Count - 1);
-            Debug.Log("Remaining deals are : " + String.Join('|', allDealsAsList.Select(x => x.ToString())));
+            //Debug.Log("Remaining deals are : " + String.Join('|', allDealsAsList.Select(x => x.ToString())));
         }
 
         dealChains.Sort(delegate (DealChain d1, DealChain d2)
@@ -118,11 +118,6 @@ public class DealChain
 
                return d1.Deals.Count.CompareTo(d2.Deals.Count);
            });
-
-        Debug.Log(" ********************* ");
-        Debug.Log(" ********************* ");
-        Debug.LogWarning("After all computations, best chains are ");
-        Debug.Log(String.Join(System.Environment.NewLine, dealChains.Select(x => "Profit " + x.Profit.ToString() + " : " + x.ToString())));
 
         return dealChains;
     }

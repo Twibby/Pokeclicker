@@ -7,6 +7,7 @@ public class LoadingScreenManager : MonoBehaviour
     [SerializeField] private CanvasGroup fadeCanvasGroup;
     [SerializeField] private Transform animatedObjectTransform;
     [SerializeField] private float fadingduration;
+    public float Duration { get { return fadingduration; } }
 
     public void StartLoading()
     {

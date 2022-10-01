@@ -70,7 +70,7 @@ public class DayBloc : MonoBehaviour
         foreach (DailyDeal deal in displayedDeals)
         {
             GameObject line = GameObject.Instantiate(DealLinePrefab, DealLinesParent);
-            line.GetComponent<DealLine>().Init(deal, zebra);
+            line.GetComponent<DealLine>().Init(deal, zebra, false);
 
             zebra = !zebra;
         }

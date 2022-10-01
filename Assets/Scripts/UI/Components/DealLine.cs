@@ -8,10 +8,13 @@ public class DealLine : MonoBehaviour
     public Image backgroundImage;
     public TMPro.TMP_Text Amount1Label, Item1Label;
     public TMPro.TMP_Text Amount2Label, Item2Label;
-    
+
+    public GameObject DatePanel;
+    public TMPro.TMP_Text DateLabel;
+
     private Color zebraColor = GlobalConstants.WhiteZebra;
 
-    public void Init(DailyDeal deal, bool zebra = false)
+    public void Init(DailyDeal deal, bool zebra = false, bool isDateVisible = false)
     {
         this.Amount1Label.text = deal.amount1.ToString();
         this.Item1Label.text = deal.item1.ExtendedName;
@@ -27,5 +30,11 @@ public class DealLine : MonoBehaviour
 
         if (zebra && backgroundImage)
             backgroundImage.color = zebraColor;
+
+        if (DatePanel != null)
+        {
+            DatePanel.SetActive(isDateVisible);
+            DateLabel.text = deal.date.ToShortDateString();
+        }
     }
 }

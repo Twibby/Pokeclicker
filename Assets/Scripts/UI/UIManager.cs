@@ -45,10 +45,9 @@ public class UIManager : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
 
-        MessagePanel.gameObject.SetActive(true);
-
+        //MessagePanel.gameObject.SetActive(true);
         //MessagePanel.StopLoading();
-        yield return new WaitForSeconds(MessagePanel.Duration);
+        //yield return new WaitForSeconds(MessagePanel.Duration);
 
         string message = "";
         if (level == MessageLevel.WARNING || level == MessageLevel.ERROR) 

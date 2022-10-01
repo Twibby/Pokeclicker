@@ -9,7 +9,7 @@ public class UndergroundItem
     private int id;
     private int value;
     public ValueType valueType { get; }
-    private Requirement? requirement;
+    private Requirement requirement;
     protected int? type;
 
     public UndergroundItem( string p_name, int p_id, int p_val, ValueType p_valueType = ValueType.Diamond, Requirement p_requirement = null)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Threading.Tasks;
 
 
 public class RangeDateDealGenerator : DailyDealsGenerator
@@ -30,7 +31,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         int year = DateTime.Now.Year;
         {
             StartYearDropdown.ClearOptions();
-            for (int y = 0; y < 10; y++)
+            for (int y = 0; y < 4; y++)
             {
                 StartYearDropdown.options.Add(new TMPro.TMP_Dropdown.OptionData((y + year).ToString()));
             }
@@ -72,6 +73,13 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         EndYearDropdown.onValueChanged.AddListener(x => initEndDaysDropdown());
         EndMonthDropdown.onValueChanged.AddListener(x => initEndDaysDropdown());
 
+        StartDayDropdown.RefreshShownValue();
+        StartMonthDropdown.RefreshShownValue();
+        StartYearDropdown.RefreshShownValue();
+        EndDayDropdown.RefreshShownValue();
+        EndMonthDropdown.RefreshShownValue();
+        EndYearDropdown.RefreshShownValue();
+
         foreach (DayBloc day in DealsParent.GetComponentsInChildren<DayBloc>(true)) 
         {
             Destroy(day.gameObject); 
@@ -96,6 +104,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         }
 
         StartDayDropdown.value = Mathf.Min(tmpVal, StartDayDropdown.options.Count - 1);
+        StartDayDropdown.RefreshShownValue();
     }
 
     void initEndDaysDropdown()
@@ -109,6 +118,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         }
 
         EndDayDropdown.value = Mathf.Min(tmpVal, EndDayDropdown.options.Count - 1);
+        EndDayDropdown.RefreshShownValue();
     }
 
     #region UI functions
@@ -138,7 +148,7 @@ public class RangeDateDealGenerator : DailyDealsGenerator
             return;
         }
 
-        StartCoroutine(coGenerateClick(startDate, endDate));
+        coGenerateClick(startDate, endDate);
     }
 
     #endregion
@@ -164,10 +174,10 @@ public class RangeDateDealGenerator : DailyDealsGenerator
     }
     #endregion
 
-    IEnumerator coGenerateClick(DateTime startDate, DateTime endDate)
+    async void coGenerateClick(DateTime startDate, DateTime endDate)
     {
         UIManager.Instance.LoadingActivation(true);
-        yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
 
         allDeals = new SortedDictionary<DateTime, List<DailyDeal>>();
 
@@ -176,10 +186,10 @@ public class RangeDateDealGenerator : DailyDealsGenerator
         Debug.Log("Generating range from " + startDate.ToShortDateString() + " to " + endDate.ToShortDateString());
 
        
-        int safetyCount = 0;
+        //int safetyCount = 0;
         for (DateTime day = startDate; day < endDate; day = day.AddDays(1))
         {
-            List<DailyDeal> dailyDeals = DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, day);
+            List<DailyDeal> dailyDeals = await DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, day);
             
             allDeals.Add(day, dailyDeals);
 
@@ -187,16 +197,16 @@ public class RangeDateDealGenerator : DailyDealsGenerator
             dayBloc.name = "Deals_Of_" + day.ToString("yyyy-MM-dd");
             dayBloc.GetComponent<DayBloc>().Init(day, dailyDeals, filtersList, HideEmptyDaysToggle.isOn);
 
-            safetyCount++;
-            if (safetyCount > 1)   // arbitrary value to avoid all instantiations in same frame
-            {
-                safetyCount = 0;
-                yield return new WaitForEndOfFrame();
-            }
+            //safetyCount++;
+            //if (safetyCount > 1)   // arbitrary value to avoid all instantiations in same frame
+            //{
+            //    safetyCount = 0;
+                await Task.Delay(5);
+            //}
         }
 
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
 
         UIManager.Instance.LoadingActivation(false);
 

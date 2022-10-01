@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class DealChain 
 {
@@ -38,7 +39,7 @@ public class DealChain
         return log;
     }
 
-    public static List<DealChain> GetDealChains(UndergroundItem item, DateTime startDate, DateTime endDate)
+    public static async Task<List<DealChain>> GetDealChains(UndergroundItem item, DateTime startDate, DateTime endDate)
     {
         List<DealChain> dealChains = new List<DealChain>();
 
@@ -52,7 +53,7 @@ public class DealChain
         // First, generate all deals and put them into a single list, sorted (to have no rec loop)
         for (DateTime day = startDate; day < endDate; day = day.AddDays(1))
         {
-            List<DailyDeal> dailyDeals = DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, day);
+            List<DailyDeal> dailyDeals = await DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, day);
 
             dailyDeals.Sort(delegate (DailyDeal a, DailyDeal b)
             {
@@ -68,11 +69,13 @@ public class DealChain
             });
 
             allDealsAsList.AddRange(dailyDeals);
+
+            await Task.Delay(2);
         }
 
-        string log = "";
-        allDealsAsList.ForEach(x => log += x.ToString() + "  | ");
-        //Debug.Log(log);
+        await Task.Delay(100);
+        Debug.Log("Deals generated, starting computing chains");
+        await Task.Delay(1000);
 
         // go through deals list and if deal is about required item add it to a chain
         while (allDealsAsList.Count > 0)

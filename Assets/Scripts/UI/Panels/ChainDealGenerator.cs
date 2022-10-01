@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class ChainDealGenerator : DailyDealsGenerator
 {
@@ -29,7 +30,7 @@ public class ChainDealGenerator : DailyDealsGenerator
         int year = DateTime.Now.Year;
         {
             StartYearDropdown.ClearOptions();
-            for (int y = 0; y < 10; y++)
+            for (int y = 0; y < 4; y++)
             {
                 StartYearDropdown.options.Add(new TMPro.TMP_Dropdown.OptionData((y + year).ToString()));
             }
@@ -71,6 +72,12 @@ public class ChainDealGenerator : DailyDealsGenerator
         EndYearDropdown.onValueChanged.AddListener(x => initEndDaysDropdown());
         EndMonthDropdown.onValueChanged.AddListener(x => initEndDaysDropdown());
 
+        StartDayDropdown.RefreshShownValue();
+        StartMonthDropdown.RefreshShownValue();
+        StartYearDropdown.RefreshShownValue();
+        EndDayDropdown.RefreshShownValue();
+        EndMonthDropdown.RefreshShownValue();
+        EndYearDropdown.RefreshShownValue();
 
         foreach (ChainBloc day in DealsParent.GetComponentsInChildren<ChainBloc>(true))
         {
@@ -92,6 +99,7 @@ public class ChainDealGenerator : DailyDealsGenerator
         }
 
         StartDayDropdown.value = Mathf.Min(tmpVal, StartDayDropdown.options.Count - 1);
+        StartDayDropdown.RefreshShownValue();
     }
 
     void initEndDaysDropdown()
@@ -105,6 +113,7 @@ public class ChainDealGenerator : DailyDealsGenerator
         }
 
         EndDayDropdown.value = Mathf.Min(tmpVal, EndDayDropdown.options.Count - 1);
+        EndDayDropdown.RefreshShownValue();
     }
 
     public override void OnPickItem(int itemId)
@@ -134,37 +143,41 @@ public class ChainDealGenerator : DailyDealsGenerator
             return;
         }
 
-        StartCoroutine(coGenerateClick(startDate, endDate));
+        coGenerateClick(startDate, endDate);
     }
 
-    IEnumerator coGenerateClick(DateTime startDate, DateTime endDate)
+    async void coGenerateClick(DateTime startDate, DateTime endDate)
     {
         UIManager.Instance.LoadingActivation(true);
 
-        yield return new WaitForEndOfFrame();
+        await Task.Delay(5);
+
+        //yield return new WaitForEndOfFrame();
         Debug.Log("Generating chain from " + startDate.ToShortDateString() + " to " + endDate.ToShortDateString());
 
         foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(true)) { Destroy(bloc.gameObject); }
 
-        List<DealChain> chains = DealChain.GetDealChains(pickedItem, startDate, endDate);
+        //yield return new WaitForEndOfFrame();
+        List<DealChain> chains = await DealChain.GetDealChains(pickedItem, startDate, endDate);
 
-        int safetyCount = 0;
+        //int safetyCount = 0;
         for (int i = 0; i < Mathf.Min(MaxNumberOfChains, chains.Count); i++)
         {
             GameObject dayBloc = GameObject.Instantiate(DayBlocPrefab, DealsParent);
             dayBloc.name = "Chain_" + i.ToString();
             dayBloc.GetComponent<ChainBloc>().Init(chains[i]);
 
-            safetyCount++;
-            if (safetyCount > 5)   // arbitrary value to avoid all instantiations in same frame
-            {
-                safetyCount = 0;
-                yield return new WaitForEndOfFrame();
-            }
+            //safetyCount++;
+            //if (safetyCount > 5)   // arbitrary value to avoid all instantiations in same frame
+            //{
+            //    safetyCount = 0;
+            //    yield return new WaitForEndOfFrame();
+            await Task.Delay(5);
+            //}
         }
 
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
 
         UIManager.Instance.LoadingActivation(false);
     }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Threading.Tasks;
 
 public class DailyDeal
 {
@@ -36,7 +37,7 @@ public class DailyDeal
     }
 
     #region DailyDeal generation
-    public static List<DailyDeal> GenerateDeals(int p_maxDeals, DateTime p_date)
+    public static Task<List<DailyDeal>> GenerateDeals(int p_maxDeals, DateTime p_date)
     {
         SeededRand.seedWithDate(p_date);
 
@@ -55,7 +56,9 @@ public class DailyDeal
             safetyCount++;
         }
 
-        return deals;
+        return Task.FromResult(deals);
+
+        //return deals; new Task<List<DailyDeal>>( () => { return deals; });
     }
 
     public bool IsValid(List<DailyDeal> dealList)

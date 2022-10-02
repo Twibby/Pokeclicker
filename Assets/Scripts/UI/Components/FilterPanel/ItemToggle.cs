@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Toggle))]
-public class ItemLine : ItemObject
-{    
+public class ItemToggle : ItemObject
+{
     private Toggle _myToggle;
     public override bool isOn
     {
@@ -19,6 +19,4 @@ public class ItemLine : ItemObject
 
         this._myToggle = this.GetComponent<Toggle>();
     }
-
-    
 }

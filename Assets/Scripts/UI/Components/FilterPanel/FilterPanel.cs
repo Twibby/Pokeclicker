@@ -10,6 +10,8 @@ public class FilterPanel : MonoBehaviour
     private DailyDealsGenerator _parent;
     private List<TypeBloc> _blocs = new List<TypeBloc>();
 
+    public bool ResetMustSetOn = true;
+
     void Start()
     {
         this._parent = this.GetComponentInParent<DailyDealsGenerator>();
@@ -27,14 +29,19 @@ public class FilterPanel : MonoBehaviour
             bloc.GetComponent<TypeBloc>().Init(type);
 
             _blocs.Add(bloc.GetComponent<TypeBloc>());
+            Debug.Log(bloc.gameObject.name);
         }
+        Debug.LogWarning("*" + _blocs.Count);
+        Set(new List<UndergroundItem>());
     }
 
     public void Set(List<UndergroundItem> filtersList)
     {
+        Debug.Log("settings");
         foreach (TypeBloc bloc in _blocs)
         {
-            bloc.Reset(filtersList);
+            Debug.Log(bloc.gameObject.name);
+            bloc.Set(filtersList, ResetMustSetOn);
         }
     }
 
@@ -49,6 +56,12 @@ public class FilterPanel : MonoBehaviour
         List<UndergroundItem> filters = new List<UndergroundItem>();
         _blocs.ForEach(x => filters.AddRange(x.OnApply()));
 
+        if (filters.Count == 0)
+        {
+            UIManager.Instance.SetMessage("No item selected, you need to have at least one selected item", UIManager.MessageLevel.ERROR);
+            return;
+        }
+
         this._parent.ApplyFilters(filters);
 
         this.gameObject.SetActive(false);
@@ -56,7 +69,7 @@ public class FilterPanel : MonoBehaviour
 
     public void OnReset()
     {
-        _blocs.ForEach(x => x.OnReset());
+        _blocs.ForEach(x => x.OnReset(ResetMustSetOn));
     }
     #endregion
 }

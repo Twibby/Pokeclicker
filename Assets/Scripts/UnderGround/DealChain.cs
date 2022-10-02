@@ -39,11 +39,11 @@ public class DealChain
         return log;
     }
 
-    public static async Task<List<DealChain>> GetDealChains(UndergroundItem item, DateTime startDate, DateTime endDate)
+    public static async Task<List<DealChain>> GetDealChains(List<UndergroundItem> requiredItems, DateTime startDate, DateTime endDate)
     {
         List<DealChain> dealChains = new List<DealChain>();
 
-        if (item == null)
+        if (requiredItems == null || requiredItems.Count == 0)
         {
             Debug.LogError("No item picked");
             return dealChains;
@@ -95,7 +95,7 @@ public class DealChain
             }
             dealChains.AddRange(newChains);
 
-            if (lastDeal.item2.Id == item.Id)
+            if (requiredItems.Exists(x => x.Id == lastDeal.item2.Id))
             {
                 //Debug.Log("SelectedItem is found, create a new chain with it");
                 DealChain dc = new DealChain();

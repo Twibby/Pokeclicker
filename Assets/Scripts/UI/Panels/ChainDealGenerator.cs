@@ -18,10 +18,11 @@ public class ChainDealGenerator : DailyDealsGenerator
     [Space(8)]
     public Transform DealsParent;
 
-    public PickPanel PickPanel;
+    //public PickPanel PickPanel;       Old way with single item
+    public FilterPanel MyFilterPanel;
     public TMPro.TMP_Text PickedItemLabel;
 
-    [SerializeField] private UndergroundItem pickedItem;
+    [SerializeField] private List<UndergroundItem> pickedItems;
 
     public override void Initialize()
     {
@@ -85,7 +86,8 @@ public class ChainDealGenerator : DailyDealsGenerator
         }
 
         //pickedItem = null;
-        OnPickItem(-1);  
+        //OnPickItem(-1);
+        ApplyFilters(new List<UndergroundItem>());
     }
 
     void initStartDaysDropdown()
@@ -116,18 +118,51 @@ public class ChainDealGenerator : DailyDealsGenerator
         EndDayDropdown.RefreshShownValue();
     }
 
+    public void OpenFilterPanel()
+    {
+        MyFilterPanel.gameObject.SetActive(true);
+        this.MyFilterPanel.Set(pickedItems);
+    }
+
     public override void OnPickItem(int itemId)
     {
-        pickedItem = UndergroundItemsManager.Singleton.Items.Find(x => x.Id == itemId);
+        UndergroundItem item = UndergroundItemsManager.Singleton.Items.Find(x => x.Id == itemId);
+        pickedItems = new List<UndergroundItem>() { item };
 
-        PickedItemLabel.text = "Current item: <i>" + (pickedItem != null ? pickedItem.DisplayName : "None") + "</i>";
+        PickedItemLabel.text = "Current item: <i>" + (pickedItems != null && pickedItems.Count > 0 ? pickedItems[0].DisplayName : "None") + "</i>";
         
-        PickPanel.gameObject.SetActive(false);
+        MyFilterPanel.gameObject.SetActive(false);
+    }
+
+    public override void ApplyFilters(List<UndergroundItem> items)
+    {
+        pickedItems = new List<UndergroundItem>(items);
+        MyFilterPanel.gameObject.SetActive(false);
+
+        string log = "Current item: <i>";
+        if (pickedItems == null || pickedItems.Count == 0)
+        {
+            log += "None";
+        }
+        else
+        {
+            int maxItemDisplayed = 2;
+            for (int i = 0; i < Mathf.Min(pickedItems.Count, maxItemDisplayed); i++)
+            {
+                log += pickedItems[i].DisplayName + ", ";
+            }
+            if (pickedItems.Count > maxItemDisplayed)
+                log += "... (total: " + pickedItems.Count + ")";
+            else
+                log = log[0..^2];            
+        }
+        log += "</i>";
+        PickedItemLabel.text = log;
     }
 
     public void OnGenerateClick()
     {
-        if (pickedItem == null)
+        if (pickedItems == null || pickedItems.Count == 0)
         {
             UIManager.Instance.SetMessage("No Item picked, you must pick an underground item to know its best chains", UIManager.MessageLevel.ERROR);
             return;
@@ -158,7 +193,7 @@ public class ChainDealGenerator : DailyDealsGenerator
         foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(true)) { Destroy(bloc.gameObject); }
 
         //yield return new WaitForEndOfFrame();
-        List<DealChain> chains = await DealChain.GetDealChains(pickedItem, startDate, endDate);
+        List<DealChain> chains = await DealChain.GetDealChains(pickedItems, startDate, endDate);
 
         //int safetyCount = 0;
         for (int i = 0; i < Mathf.Min(MaxNumberOfChains, chains.Count); i++)

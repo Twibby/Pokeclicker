@@ -21,7 +21,7 @@ public class ChainBloc : MonoBehaviour
             numberOfDays = " over " + ((chain.Deals[chain.Deals.Count - 1].date - chain.Deals[0].date).TotalDays +1).ToString() + " days";
         }        
 
-        ProfitLabel.text = "Profit of " + chain.Profit + " in " + chain.Deals.Count + " deal(s)" + numberOfDays;
+        ProfitLabel.text = "Profit of <b>" + chain.Profit + " " + chain.Deals[chain.Deals.Count-1].item2.DisplayName + "</b> in " + chain.Deals.Count + " deal(s)" + numberOfDays;
 
         myDealChain = chain;
 

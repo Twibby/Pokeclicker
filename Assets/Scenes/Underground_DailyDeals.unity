@@ -14502,7 +14502,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DayBlocPrefab: {fileID: 7238563990738095724, guid: a8810e5d774e1f94aa03e6a063f19fda, type: 3}
-  MaxNumberOfChains: 5
+  MaxNumberOfChains: 8
   StartYearDropdown: {fileID: 513106717}
   StartMonthDropdown: {fileID: 34797046}
   StartDayDropdown: {fileID: 1763353657}

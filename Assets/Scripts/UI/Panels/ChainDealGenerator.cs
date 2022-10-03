@@ -178,41 +178,44 @@ public class ChainDealGenerator : DailyDealsGenerator
             return;
         }
 
-        coGenerateClick(startDate, endDate);
+        StartCoroutine(coGenerateClick(startDate, endDate));
     }
 
-    async void coGenerateClick(DateTime startDate, DateTime endDate)
+    IEnumerator coGenerateClick(DateTime startDate, DateTime endDate)
     {
         UIManager.Instance.LoadingActivation(true);
 
-        await Task.Delay(5);
+        //await Task.Delay(5);
+        yield return new WaitForEndOfFrame();
 
-        //yield return new WaitForEndOfFrame();
         Debug.Log("Generating chain from " + startDate.ToShortDateString() + " to " + endDate.ToShortDateString());
 
         foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(true)) { Destroy(bloc.gameObject); }
 
-        //yield return new WaitForEndOfFrame();
-        List<DealChain> chains = await DealChain.GetDealChains(pickedItems, startDate, endDate);
+        yield return new WaitForEndOfFrame();
+       
+        //List<DealChain> chains = await DealChain.GetDealChains(pickedItems, startDate, endDate);
+        List<DealChain> chains = DealChain.GetDealChains(pickedItems, startDate, endDate);
 
-        //int safetyCount = 0;
+        int safetyCount = 0;
         for (int i = 0; i < Mathf.Min(MaxNumberOfChains, chains.Count); i++)
         {
             GameObject dayBloc = GameObject.Instantiate(DayBlocPrefab, DealsParent);
             dayBloc.name = "Chain_" + i.ToString();
             dayBloc.GetComponent<ChainBloc>().Init(chains[i]);
 
-            //safetyCount++;
-            //if (safetyCount > 5)   // arbitrary value to avoid all instantiations in same frame
-            //{
-            //    safetyCount = 0;
-            //    yield return new WaitForEndOfFrame();
-            await Task.Delay(5);
-            //}
+            safetyCount++;
+            if (safetyCount > 5)   // arbitrary value to avoid all instantiations in same frame
+            {
+                safetyCount = 0;
+                yield return new WaitForEndOfFrame();
+                
+            }
+            // await Task.Delay(5);
         }
 
-        //yield return new WaitForEndOfFrame();
-        //yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
 
         UIManager.Instance.LoadingActivation(false);
     }

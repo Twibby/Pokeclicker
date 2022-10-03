@@ -37,7 +37,7 @@ public class DailyDeal
     }
 
     #region DailyDeal generation
-    public static Task<List<DailyDeal>> GenerateDeals(int p_maxDeals, DateTime p_date)
+    public static List<DailyDeal> GenerateDeals(int p_maxDeals, DateTime p_date)
     {
         SeededRand.seedWithDate(p_date);
 
@@ -56,9 +56,8 @@ public class DailyDeal
             safetyCount++;
         }
 
-        return Task.FromResult(deals);
-
-        //return deals; new Task<List<DailyDeal>>( () => { return deals; });
+        //return Task.FromResult(deals);
+        return deals;
     }
 
     public bool IsValid(List<DailyDeal> dealList)

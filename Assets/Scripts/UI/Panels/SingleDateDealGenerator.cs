@@ -57,21 +57,19 @@ public class SingleDateDealGenerator : DailyDealsGenerator
         DayDropdown.RefreshShownValue();
     }
 
-    public async void OnGenerateClick()
+    public void OnGenerateClick()
     {
         DateTime date = new DateTime(DateTime.Now.Year + YearDropdown.value, MonthDropdown.value + 1, DayDropdown.value + 1);
 
         Debug.LogWarning(date.ToLongDateString() + "   ---   " + date.ToShortDateString());
 
+        List<DailyDeal> deals = DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, date);
 
-        List<DailyDeal> deals = await DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, date);
-        Debug.Log("END AWAIT deals count : " + deals.Count);
         DisplayDeals(date, deals, DealsParent);
     }
 
     public void DisplayDeals(DateTime date, List<DailyDeal> deals, Transform parent)
     {
-        Debug.Log("deals count : " + deals.Count);
         foreach (DayBloc day in parent.GetComponentsInChildren<DayBloc>(true)) { Destroy(day.gameObject); }
 
         if (deals.Count == 0)

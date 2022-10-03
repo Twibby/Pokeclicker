@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DealChain 
+public class DealChain
 {
     public List<DailyDeal> Deals;
 
@@ -39,7 +39,7 @@ public class DealChain
         return log;
     }
 
-    public static async Task<List<DealChain>> GetDealChains(List<UndergroundItem> requiredItems, DateTime startDate, DateTime endDate)
+    public static List<DealChain> GetDealChains(List<UndergroundItem> requiredItems, DateTime startDate, DateTime endDate)
     {
         List<DealChain> dealChains = new List<DealChain>();
 
@@ -53,7 +53,7 @@ public class DealChain
         // First, generate all deals and put them into a single list, sorted (to have no rec loop)
         for (DateTime day = startDate; day < endDate; day = day.AddDays(1))
         {
-            List<DailyDeal> dailyDeals = await DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, day);
+            List<DailyDeal> dailyDeals = DailyDeal.GenerateDeals(PlayerSettings.MaxDeals, day);
 
             dailyDeals.Sort(delegate (DailyDeal a, DailyDeal b)
             {
@@ -70,12 +70,11 @@ public class DealChain
 
             allDealsAsList.AddRange(dailyDeals);
 
-            await Task.Delay(2);
+            //await Task.Delay(2);
         }
 
-        await Task.Delay(100);
+        //await Task.Delay(10);
         Debug.Log("Deals generated, starting computing chains");
-        await Task.Delay(1000);
 
         // go through deals list and if deal is about required item add it to a chain
         while (allDealsAsList.Count > 0)

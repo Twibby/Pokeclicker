@@ -110,4 +110,12 @@ public class DailyDeal
         return JsonUtility.ToJson(this);
     }
 
+    public string ToCsvString()
+    {
+        return this.date.ToShortDateString() + ";"
+           + this.amount1.ToString() + ";"
+           + this.item1.DisplayName + ";"
+           + this.amount2.ToString() + ";"
+           + this.item2.DisplayName;
+    }
 }

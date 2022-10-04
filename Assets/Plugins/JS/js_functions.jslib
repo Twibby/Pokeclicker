@@ -7,9 +7,9 @@ mergeInto(LibraryManager.library, {
 	// byteArray: byte[]
 	// byteArraySize: byte[].Length
 	DownloadFileCustom: function(gameObjectNamePtr, methodNamePtr, filenamePtr, byteArray, byteArraySize) {
-		gameObjectName = Pointer_stringify(gameObjectNamePtr);
-		methodName = Pointer_stringify(methodNamePtr);
-		filename = Pointer_stringify(filenamePtr);
+		gameObjectName = UTF8ToString(gameObjectNamePtr);
+		methodName = UTF8ToString(methodNamePtr);
+		filename = UTF8ToString(filenamePtr);
 
 		var bytes = new Uint8Array(byteArraySize);
 		for (var i = 0; i < byteArraySize; i++) {

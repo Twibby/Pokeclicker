@@ -11,8 +11,11 @@ public class UnityWebGLIOManager : MonoBehaviour
 
 
     private bool _isBusy = false;
-    public IEnumerator ExportChains(List<DealChain> chains, string filename)
+    public IEnumerator ExportChains(List<DealChain> chains, string filenameSuffix, bool isJSON = true)
     {
+        UIManager.Instance.LoadingActivation(true);
+        yield return new WaitForEndOfFrame();
+
         List<DailyDeal> deals = new List<DailyDeal>();
         foreach (DealChain dc in chains)
         {
@@ -27,31 +30,46 @@ public class UnityWebGLIOManager : MonoBehaviour
         Debug.LogWarning(deals.Count);
 
         yield return new WaitForEndOfFrame();
-        
-        JWT.DefaultJsonSerializer parser = new JWT.DefaultJsonSerializer();
-        string jsonContent = parser.Serialize(deals);
+        byte[] byteArray;
 
-        Debug.LogWarning("* " + jsonContent);
-        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(jsonContent);
+        if (isJSON)
+        {
+            JWT.DefaultJsonSerializer parser = new JWT.DefaultJsonSerializer();
+            string jsonContent = parser.Serialize(deals);
+
+            Debug.LogWarning("* " + jsonContent);
+            byteArray = System.Text.Encoding.UTF8.GetBytes(jsonContent);
+        }
+        else
+        {
+            string csvContent = "Date;Amount1;Item1;Amount2;Item2" + System.Environment.NewLine;
+            foreach (DailyDeal deal in deals)
+            {
+                csvContent += deal.ToCsvString() + System.Environment.NewLine;
+            }
+            byteArray = System.Text.Encoding.UTF8.GetBytes(csvContent);
+        }
+
 
 #if UNITY_EDITOR
-        string filePath = Application.dataPath + "/chainsExport_" + filename + ".json";
+        string filePath = Application.dataPath + "/chainsExport_" + filenameSuffix + "." + (isJSON ? "json" : "csv");
 
         Debug.Log("Exporting for Editor, path is : " + filePath);
 
         System.IO.File.WriteAllBytes(filePath, byteArray);
-        yield break;
 #elif UNITY_WEBGL
 
         _isBusy = true;
-        DownloadFileCustom("UnityWebGLIOManager", "OnFileDownload", "chainsExport_" + filename + ".json", byteArray, byteArray.Length);
+        DownloadFileCustom("UnityWebGLIOManager", "OnFileDownload", "chainsExport_" + filenameSuffix + "." + (isJSON ? "json" : "csv"), byteArray, byteArray.Length);
 
         float t0 = Time.time;
-        while (_isBusy && (Time.time - t0 < 5f))
+        while (_isBusy && (Time.time - t0 < 10f))
         {
             yield return new WaitForEndOfFrame();
         }
 #endif
+        yield return new WaitForEndOfFrame();
+        UIManager.Instance.LoadingActivation(false);
 
     }
 

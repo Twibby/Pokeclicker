@@ -200,16 +200,17 @@ public class ChainDealGenerator : DailyDealsGenerator
     {
         Debug.Log("Start Export");
         List<DealChain> chainsToExport = new List<DealChain>();
-        foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(true))
+        foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(false))
         {
             if (bloc.ExportToggle.isOn)
                 chainsToExport.Add(bloc.MyDealChain);
         }
         string filenameSuffix = DateTime.Now.ToString("yyyyMMdd");
-        if (ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>() != null)
+        if (ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>() != null
+            && ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>().text != string.Empty)
             filenameSuffix = ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>().text;
 
-        StartCoroutine(UnityWebGLIOManager.Instance.ExportChains(chainsToExport, filenameSuffix));
+        StartCoroutine(UnityWebGLIOManager.Instance.ExportChains(chainsToExport, filenameSuffix, false));
     }
 
     public void OnSubchainToggleClick(bool isOn)

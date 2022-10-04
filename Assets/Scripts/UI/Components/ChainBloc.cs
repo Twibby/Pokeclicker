@@ -11,9 +11,12 @@ public class ChainBloc : MonoBehaviour
     public Transform DealLinesParent;
     public GameObject DealLinePrefab;
 
+    public Toggle ExportToggle;
+
     private DealChain myDealChain;
-    
-    public void Init(DealChain chain)
+    public DealChain MyDealChain { get { return myDealChain; } }
+
+    public void Init(DealChain chain, bool displayExportToggle = false)
     {
         string numberOfDays = "";
         if (chain.Deals.Count > 1)
@@ -24,6 +27,8 @@ public class ChainBloc : MonoBehaviour
         ProfitLabel.text = "Profit of <b>" + chain.Profit + " " + chain.Deals[chain.Deals.Count-1].item2.DisplayName + "</b> in " + chain.Deals.Count + " deal(s)" + numberOfDays;
 
         myDealChain = chain;
+
+        ExportToggleActivation(displayExportToggle);
 
         displayLines();
     }
@@ -48,5 +53,10 @@ public class ChainBloc : MonoBehaviour
 
             zebra = !zebra;
         }
+    }
+
+    public void ExportToggleActivation(bool value)
+    {
+        ExportToggle.gameObject.SetActive(value);
     }
 }

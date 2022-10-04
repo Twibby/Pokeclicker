@@ -36,23 +36,10 @@ public class UIManager : MonoBehaviour
 
     public void SetMessage(string text, MessageLevel level = MessageLevel.ERROR)
     {
-        //StopCoroutine("coSetMessage");
-        StartCoroutine(coSetMessage(text, level));
-
-    }
-
-    IEnumerator coSetMessage(string text, MessageLevel level)
-    {
-        yield return new WaitForEndOfFrame();
-
-        //MessagePanel.gameObject.SetActive(true);
-        //MessagePanel.StopLoading();
-        //yield return new WaitForSeconds(MessagePanel.Duration);
-
         string message = "";
-        if (level == MessageLevel.WARNING || level == MessageLevel.ERROR) 
-        { 
-            message += level + ": "; 
+        if (level == MessageLevel.WARNING || level == MessageLevel.ERROR)
+        {
+            message += level + ": ";
         }
         message += text;
 
@@ -60,26 +47,25 @@ public class UIManager : MonoBehaviour
 
         switch (level)
         {
-            case MessageLevel.NOTICE: MessageLabel.color = Color.black; 
-                Debug.Log(text);  break;
-            case MessageLevel.WARNING: MessageLabel.color = Color.yellow;
+            case MessageLevel.NOTICE:
+                MessageLabel.color = Color.black;
+                Debug.Log(text); break;
+            case MessageLevel.WARNING:
+                MessageLabel.color = Color.yellow;
                 Debug.LogWarning(text); break;
-            case MessageLevel.ERROR: MessageLabel.color = Color.red;
+            case MessageLevel.ERROR:
+                MessageLabel.color = Color.red;
                 Debug.LogError(text); break;
-            case MessageLevel.VALIDATE: MessageLabel.color = Color.green; 
+            case MessageLevel.VALIDATE:
+                MessageLabel.color = Color.green;
                 Debug.Log(text); break;
         }
 
-        MessagePanel.gameObject.SetActive(true); 
+        MessagePanel.gameObject.SetActive(true);
         MessagePanel.StartLoading();
-
-        yield return new WaitForSeconds(2.5f);
-
-        MessagePanel.StopLoading();
+        //MessagePanel.CloseAfterDelay(5f);
     }
-
-
-
+         
     /// <summary>
     /// The instance to call to get the UIManager
     /// </summary>

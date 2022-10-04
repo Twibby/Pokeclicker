@@ -836,9 +836,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TypeLabel: {fileID: 953830071574603932}
   TypeColorHolder: {fileID: 3873061854772671587}
-  CountLabel: {fileID: 6240789049774448824}
   ItemPrefab: {fileID: 2139924317482602322, guid: c5ef951fa7f82f44fb80137bbc46dc3b, type: 3}
   ItemsParent: {fileID: 1013812950346304514}
+  _items: []
+  CountLabel: {fileID: 6240789049774448824}
 --- !u!114 &3593940197080755587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1892,6 +1893,10 @@ PrefabInstance:
     - target: {fileID: 2139924317482602322, guid: c5ef951fa7f82f44fb80137bbc46dc3b, type: 3}
       propertyPath: m_Name
       value: ItemToggle
+      objectReference: {fileID: 0}
+    - target: {fileID: 5938372971615013515, guid: c5ef951fa7f82f44fb80137bbc46dc3b, type: 3}
+      propertyPath: m_IsOn
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8661943034502427828, guid: c5ef951fa7f82f44fb80137bbc46dc3b, type: 3}
       propertyPath: m_Pivot.x

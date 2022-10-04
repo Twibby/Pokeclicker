@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DG.Tweening;
 
 public class ChainDealGenerator : DailyDealsGenerator
 {
@@ -21,8 +22,16 @@ public class ChainDealGenerator : DailyDealsGenerator
     //public PickPanel PickPanel;       Old way with single item
     public FilterPanel MyFilterPanel;
     public TMPro.TMP_Text PickedItemLabel;
+    public Toggle SubchainToggle;
+
+    public GameObject NoChainsLabel;
+
+    public Toggle ExportToggle;
+    public RectTransform ExportDetailsPanel;
 
     [SerializeField] private List<UndergroundItem> pickedItems;
+    
+    private List<DealChain> _chains = new List<DealChain>();
 
     public override void Initialize()
     {
@@ -85,9 +94,22 @@ public class ChainDealGenerator : DailyDealsGenerator
             Destroy(day.gameObject);
         }
 
+        SubchainToggle.isOn = true;
+        ExportToggle.interactable = false;
+
         //pickedItem = null;
         //OnPickItem(-1);
         ApplyFilters(new List<UndergroundItem>());
+        NoChainsLabel.SetActive(false);
+
+        _chains = new List<DealChain>();        
+    }
+
+    private void Update()
+    {
+        
+        if (Input.GetKeyUp(KeyCode.K) && _chains != null)
+            OnExportClick();
     }
 
     void initStartDaysDropdown()
@@ -160,6 +182,44 @@ public class ChainDealGenerator : DailyDealsGenerator
         PickedItemLabel.text = log;
     }
 
+    public void OnExportToggleClick(bool isOn)
+    {
+        float duration = 0.4f;
+        DOTween.Kill(ExportDetailsPanel.gameObject.name + "_pivot");
+        ExportDetailsPanel.DOPivotX(isOn ? 0 : 1f, 0.4f).SetEase(Ease.InOutCubic).SetId(ExportDetailsPanel.gameObject.name + "_pivot");
+
+        ExportToggle.GetComponentInChildren<RotateOnToggle>()?.OnToggle(isOn);
+
+        foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(true))
+        {
+            bloc.ExportToggleActivation(isOn);
+        }
+    }
+
+    public void OnExportClick()
+    {
+        Debug.Log("Start Export");
+        List<DealChain> chainsToExport = new List<DealChain>();
+        foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(true))
+        {
+            if (bloc.ExportToggle.isOn)
+                chainsToExport.Add(bloc.MyDealChain);
+        }
+        string filenameSuffix = DateTime.Now.ToString("yyyyMMdd");
+        if (ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>() != null)
+            filenameSuffix = ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>().text;
+
+        StartCoroutine(UnityWebGLIOManager.Instance.ExportChains(chainsToExport, filenameSuffix));
+    }
+
+    public void OnSubchainToggleClick(bool isOn)
+    {
+        foreach (ChainBloc bloc in DealsParent.GetComponentsInChildren<ChainBloc>(true))
+        {
+            bloc.gameObject.SetActive(isOn || bloc.MyDealChain.IsMainChain);
+        }
+    }
+
     public void OnGenerateClick()
     {
         if (pickedItems == null || pickedItems.Count == 0)
@@ -194,15 +254,15 @@ public class ChainDealGenerator : DailyDealsGenerator
 
         yield return new WaitForEndOfFrame();
        
-        //List<DealChain> chains = await DealChain.GetDealChains(pickedItems, startDate, endDate);
-        List<DealChain> chains = DealChain.GetDealChains(pickedItems, startDate, endDate);
+        //_chains = await DealChain.GetDealChains(pickedItems, startDate, endDate);
+        _chains = DealChain.GetDealChains(pickedItems, startDate, endDate);
 
         int safetyCount = 0;
-        for (int i = 0; i < Mathf.Min(MaxNumberOfChains, chains.Count); i++)
+        for (int i = 0; i < Mathf.Min(MaxNumberOfChains, _chains.Count); i++)
         {
             GameObject dayBloc = GameObject.Instantiate(DayBlocPrefab, DealsParent);
             dayBloc.name = "Chain_" + i.ToString();
-            dayBloc.GetComponent<ChainBloc>().Init(chains[i]);
+            dayBloc.GetComponent<ChainBloc>().Init(_chains[i]);
 
             safetyCount++;
             if (safetyCount > 5)   // arbitrary value to avoid all instantiations in same frame
@@ -213,6 +273,10 @@ public class ChainDealGenerator : DailyDealsGenerator
             }
             // await Task.Delay(5);
         }
+        NoChainsLabel.SetActive(_chains.Count == 0);
+
+        OnSubchainToggleClick(SubchainToggle.isOn);
+        ExportToggle.interactable = _chains.Count > 0;
 
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();

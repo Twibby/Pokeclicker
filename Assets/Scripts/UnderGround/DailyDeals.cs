@@ -105,4 +105,9 @@ public class DailyDeal
     {
         return this.amount1 + " x " + this.item1.DisplayName + "\t => \t" + this.amount2 + " x " + this.item2.DisplayName;
     }
+    public string ToJSONString()
+    {
+        return JsonUtility.ToJson(this);
+    }
+
 }

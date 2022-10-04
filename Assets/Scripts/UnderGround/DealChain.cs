@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 public class DealChain
 {
     public List<DailyDeal> Deals;
-
-    public DealChain() { this.Deals = new List<DailyDeal>(); }
+    public bool IsMainChain;
+    public DealChain() { this.Deals = new List<DailyDeal>(); this.IsMainChain = true; }
     public DealChain(DealChain copy, DailyDeal adder = null)
     {
+        this.IsMainChain = true;
         this.Deals = new List<DailyDeal>();
         if (adder != null)
             Deals.Add(adder);
@@ -90,6 +91,7 @@ public class DealChain
                 {
                     //Debug.Log("First item match, so duplicate chain and add this deal");
                     newChains.Add(new DealChain(chain, lastDeal));
+                    chain.IsMainChain = false;
                 }
             }
             dealChains.AddRange(newChains);

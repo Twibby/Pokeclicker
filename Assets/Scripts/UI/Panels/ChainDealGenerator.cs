@@ -9,7 +9,7 @@ using DG.Tweening;
 
 public class ChainDealGenerator : DailyDealsGenerator
 {
-    public int MaxNumberOfChains = 5;
+    public int MaxNumberOfChains = 10;
 
     [Header("Dropdowns")]
     public TMPro.TMP_Dropdown StartYearDropdown;
@@ -107,9 +107,18 @@ public class ChainDealGenerator : DailyDealsGenerator
 
     private void Update()
     {
-        
-        if (Input.GetKeyUp(KeyCode.K) && _chains != null)
-            OnExportClick();
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Quote))
+        {
+            Debug.Log("Looking for best chain for each item");
+            DateTime startDate = new DateTime(DateTime.Now.Year + StartYearDropdown.value, StartMonthDropdown.value + 1, StartDayDropdown.value + 1);
+            DateTime endDate = new DateTime(DateTime.Now.Year + EndYearDropdown.value, EndMonthDropdown.value + 1, EndDayDropdown.value + 1, 1, 0, 0);
+
+            var chains = DealChain.GetBestDealChainsForItem(pickedItems, startDate, endDate);
+            UnityWebGLIOManager.ExportType exportType = UnityWebGLIOManager.ExportType.JSON;
+            if (ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_Dropdown>() != null)
+                exportType = (UnityWebGLIOManager.ExportType)ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_Dropdown>().value;
+            StartCoroutine(UnityWebGLIOManager.Instance.ExportBestChains(chains, "bestDeals", exportType));
+        }
     }
 
     void initStartDaysDropdown()
@@ -184,7 +193,7 @@ public class ChainDealGenerator : DailyDealsGenerator
 
     public void OnExportToggleClick(bool isOn)
     {
-        float duration = 0.4f;
+        //float duration = 0.4f;
         DOTween.Kill(ExportDetailsPanel.gameObject.name + "_pivot");
         ExportDetailsPanel.DOPivotX(isOn ? 0 : 1f, 0.4f).SetEase(Ease.InOutCubic).SetId(ExportDetailsPanel.gameObject.name + "_pivot");
 
@@ -210,7 +219,11 @@ public class ChainDealGenerator : DailyDealsGenerator
             && ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>().text != string.Empty)
             filenameSuffix = ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_InputField>().text;
 
-        StartCoroutine(UnityWebGLIOManager.Instance.ExportChains(chainsToExport, filenameSuffix, false));
+        UnityWebGLIOManager.ExportType exportType = UnityWebGLIOManager.ExportType.JSON;
+        if (ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_Dropdown>() != null) 
+            exportType = (UnityWebGLIOManager.ExportType)ExportDetailsPanel.GetComponentInChildren<TMPro.TMP_Dropdown>().value;
+
+        StartCoroutine(UnityWebGLIOManager.Instance.ExportChains(chainsToExport, filenameSuffix, exportType));
     }
 
     public void OnSubchainToggleClick(bool isOn)

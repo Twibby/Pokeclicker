@@ -126,4 +126,18 @@ public class DealChain
         return dealChains;
     }
 
+    public static Dictionary<UndergroundItem, DealChain> GetBestDealChainsForItem(List<UndergroundItem> requiredItems, DateTime startDate, DateTime endDate)
+    {
+        List<DealChain> allChains = GetDealChains(requiredItems, startDate, endDate);
+
+        Dictionary<UndergroundItem, DealChain> result = new Dictionary<UndergroundItem, DealChain>();
+        foreach (UndergroundItem item in requiredItems)
+        {
+            result.Add(item, allChains.Find(x => x.IsMainChain && x.Deals.Last().item2.Id == item.Id));
+        }
+
+        return result;
+    }
+
+
 }
